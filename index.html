@@ -40,6 +40,11 @@
       scroll-snap-type: y mandatory;
     }
 
+    body.lock-scroll {
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
     .page {
       position: relative;
       min-height: 100vh;
@@ -78,6 +83,8 @@
 
     .content {
       width: min(100%, 440px);
+      max-height: calc(100dvh - 120px);
+      overflow: hidden;
       position: relative;
       z-index: 2;
       opacity: 0;
@@ -190,7 +197,7 @@
     }
 
     .reason-box {
-      margin-top: 30px;
+      margin-top: 24px;
       padding-top: 22px;
       border-top: 1px solid var(--line);
     }
@@ -205,12 +212,12 @@
 
     .reason-list {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .reason-item {
-      font-size: 16px;
-      line-height: 1.9;
+      font-size: 15px;
+      line-height: 1.75;
       color: var(--text-soft);
       padding-left: 14px;
       position: relative;
@@ -253,10 +260,10 @@
 
     .signature {
       margin-top: 34px;
-      font-size: 13px;
-      letter-spacing: 0.16em;
+      font-size: 16px;
+      letter-spacing: 0.08em;
       color: rgba(47,42,36,0.46);
-      text-transform: uppercase;
+      text-align: right;
     }
 
     .butterfly,
@@ -327,6 +334,96 @@
       height: env(safe-area-inset-bottom);
     }
 
+    .nav-controls {
+      position: fixed;
+      right: 18px;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-btn,
+    .music-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,107,0.32);
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      font-size: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .music-btn {
+      position: fixed;
+      top: max(18px, env(safe-area-inset-top));
+      left: 18px;
+      z-index: 20;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .music-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      position: relative;
+      display: block;
+      transition: transform 0.4s ease;
+      background:
+        radial-gradient(circle at center, rgba(250,248,242,0.95) 0 2px, transparent 2px 100%),
+        radial-gradient(circle at center, rgba(200,169,107,0.18) 0 5px, transparent 5px 100%),
+        repeating-radial-gradient(circle at center,
+          rgba(58,52,45,0.92) 0 1.4px,
+          rgba(72,65,57,0.94) 1.4px 2.6px,
+          rgba(48,43,38,0.96) 2.6px 3.4px);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.16),
+        inset 0 0 0 2px rgba(200,169,107,0.28),
+        0 2px 10px rgba(47,42,36,0.12);
+    }
+
+    .music-icon::before {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(250,248,242,0.98), rgba(226,214,188,0.95));
+      box-shadow: 0 0 0 1px rgba(200,169,107,0.25);
+    }
+
+    .music-icon::after {
+      content: "";
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(78,69,59,0.85);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .music-btn.playing .music-icon {
+      animation: rotateMusic 3.2s linear infinite;
+    }
+
+    @keyframes rotateMusic {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .nav-btn:active,
+    .music-btn:active {
+      transform: scale(0.97);
+    }
+
     @media (min-width: 768px) {
       .content {
         width: min(100%, 520px);
@@ -339,6 +436,14 @@
   </style>
 </head>
 <body>
+  <audio id="bgm" loop preload="auto">
+    <source src="./music.mp3" type="audio/mpeg">
+  </audio>
+
+  <button class="music-btn" id="musicBtn" aria-label="背景音乐开关">
+    <span class="music-icon" aria-hidden="true"></span>
+  </button>
+
   <main class="page-wrap">
     <section class="page" id="p1">
       <div class="page-number">01</div>
@@ -348,19 +453,19 @@
       <span class="glow two"></span>
 
       <div class="content hero">
-        <div class="eyebrow">For You</div>
+        <div class="eyebrow">写给你</div>
         <h1 class="title">写给我喜欢的你</h1>
         <p class="subtitle">这一页不长，<br>但每一句都和你有关。</p>
       </div>
 
-      <div class="scroll-hint">Scroll</div>
+      <div class="scroll-hint">下滑</div>
     </section>
 
     <section class="page" id="p2">
       <div class="page-number">02</div>
       <span class="glow one" style="top: auto; bottom: 12%; right: -50px;"></span>
       <div class="content">
-        <div class="eyebrow">To You</div>
+        <div class="eyebrow">想对你说</div>
         <p class="body-text">我不太想把这些话，<br>随便放进一条消息里。</p>
         <p class="body-text body-soft">因为对我来说，<br>它们不是一时兴起，<br>也不只是某一个瞬间的冲动。</p>
         <div class="divider"></div>
@@ -386,18 +491,18 @@
       <span class="butterfly small" style="top: 14%; right: 10%; animation-delay: 0.8s;"></span>
       <span class="glow one" style="top: auto; bottom: 12%; right: -30px; width: 170px; height: 170px;"></span>
       <div class="content">
-        <div class="eyebrow">Moments</div>
+        <div class="eyebrow">和你有关的瞬间</div>
         <p class="body-text">和你一起相处的时候，<br>我总会记住很多很小的事。</p>
         <p class="body-text body-soft">比如 2026 年 3 月 7 日，<br>我们去走西湖爱心线，<br>你买了路餐，<br>也替我带了包和帽子。</p>
-        <p class="body-text body-soft">还有一起去灵隐寺、永福禅寺，<br>一路爬到北高峰的那天；<br>还有你给我烧了午饭，<br>专门送到学校的时候。</p>
-        <p class="body-text">这些事看起来都不算轰轰烈烈，<br>但就是这些细节，<br>让我越来越喜欢你。</p>
+        <p class="body-text body-soft">还有一起去灵隐寺、永福禅寺、北高峰的那天，<br>还有你给我送来午饭的时候。</p>
+        <p class="body-text">这些看起来都不是多大的事，<br>却让我越来越确定，<br>我喜欢的是认真生活、也认真对人好的你。</p>
 
         <div class="reason-box">
-          <div class="reason-title">我喜欢你的原因</div>
+          <div class="reason-title">也是因为这些</div>
           <div class="reason-list">
-            <div class="reason-item">喜欢你热爱生活，也有自己的爱好。</div>
-            <div class="reason-item">喜欢你会认真对人好，也不会让付出变成单向。</div>
-            <div class="reason-item">喜欢你身上那种真实、自然、相处起来很舒服的感觉。</div>
+            <div class="reason-item">你总是认真生活，也一直有自己喜欢的东西。</div>
+            <div class="reason-item">你会认真对人好，也不会让一段关系只靠一个人付出。</div>
+            <div class="reason-item">和你在一起的时候，我总觉得很自然，也很舒服。</div>
           </div>
         </div>
       </div>
@@ -407,7 +512,7 @@
       <div class="page-number">05</div>
       <span class="butterfly small" style="bottom: 12%; right: 8%; opacity: 0.08;"></span>
       <div class="content proposal">
-        <div class="eyebrow">Answer</div>
+        <div class="eyebrow">我想告诉你</div>
         <p class="body-text">前面的这些回忆和心动，<br>最后都变成了一句很确定的话。</p>
         <div class="proposal-main">
           <div class="proposal-line">我喜欢你。</div>
@@ -422,31 +527,125 @@
       <span class="butterfly small" style="bottom: 16%; right: 6%; animation-delay: 1.4s;"></span>
       <span class="glow one" style="top: auto; bottom: 8%; right: -30px;"></span>
       <div class="content">
-        <div class="eyebrow">With You</div>
+        <div class="eyebrow">想和你一起</div>
         <p class="body-text">谢谢你认真看完这一页。</p>
         <p class="body-text body-soft">对我来说，<br>这不只是一个网页，<br>也是我认真准备的一份心意。</p>
         <div class="divider"></div>
         <p class="body-text">我也希望以后，<br>跨年、徒步、吃饭、看风景这些事情，<br>都还能继续有你在身边。</p>
-        <div class="signature">— For You</div>
+        <div class="signature">— 方增谊</div>
       </div>
       <div class="footer-space"></div>
     </section>
-  </main>
+    </main>
+
+  <div class="nav-controls" aria-label="翻页控制">
+    <button class="nav-btn" id="prevBtn" aria-label="上一页">↑</button>
+    <button class="nav-btn" id="nextBtn" aria-label="下一页">↓</button>
+  </div>
 
   <script>
-    const pages = document.querySelectorAll('.page');
+    const pages = Array.from(document.querySelectorAll('.page'));
+    const bgm = document.getElementById('bgm');
+    const musicBtn = document.getElementById('musicBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentIndex = 0;
+    let isAnimating = false;
+
+    document.body.classList.add('lock-scroll');
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
+          currentIndex = pages.indexOf(entry.target);
         }
       });
     }, {
-      threshold: 0.35
+      threshold: 0.55
     });
 
     pages.forEach(page => observer.observe(page));
+
+    function goToPage(index) {
+      const safeIndex = Math.max(0, Math.min(index, pages.length - 1));
+      if (isAnimating || safeIndex === currentIndex) return;
+      isAnimating = true;
+      pages[safeIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      currentIndex = safeIndex;
+      window.setTimeout(() => {
+        isAnimating = false;
+      }, 800);
+    }
+
+    prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
+
+    let wheelLock = false;
+    window.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      if (wheelLock || isAnimating) return;
+      if (Math.abs(event.deltaY) < 18) return;
+      wheelLock = true;
+      if (event.deltaY > 0) {
+        goToPage(currentIndex + 1);
+      } else {
+        goToPage(currentIndex - 1);
+      }
+      window.setTimeout(() => {
+        wheelLock = false;
+      }, 900);
+    }, { passive: false });
+
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (event) => {
+      touchStartY = event.changedTouches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (event) => {
+      if (isAnimating) return;
+      const touchEndY = event.changedTouches[0].clientY;
+      const delta = touchStartY - touchEndY;
+      if (Math.abs(delta) < 42) return;
+      if (delta > 0) {
+        goToPage(currentIndex + 1);
+      } else {
+        goToPage(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        goToPage(currentIndex + 1);
+      }
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+        event.preventDefault();
+        goToPage(currentIndex - 1);
+      }
+    });
+
+    musicBtn.addEventListener('click', async () => {
+      try {
+        if (bgm.paused) {
+          await bgm.play();
+          musicBtn.classList.add('playing');
+        } else {
+          bgm.pause();
+          musicBtn.classList.remove('playing');
+        }
+      } catch (error) {
+        musicBtn.classList.remove('playing');
+      }
+    });
+
+    bgm.addEventListener('pause', () => {
+      musicBtn.classList.remove('playing');
+    });
+
+    bgm.addEventListener('play', () => {
+      musicBtn.classList.add('playing');
+    });
   </script>
 </body>
 </html>
